@@ -58,7 +58,7 @@ const SignInCard = ({ setState }: SignInCardProps) => {
             disabled={false}
             onClick={() => {}}
             size="lg"
-            className="w-full relative"
+            className="w-full relative "
           >
             <FcGoogle className="size-5 absolute top-2.5 left-2.5" />
             Continue with Google
