@@ -1,6 +1,8 @@
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
+import { useAuthActions } from "@convex-dev/auth/react";
+
 import {
   Card,
   CardContent,
@@ -18,8 +20,15 @@ interface SignInCardProps {
 }
 
 const SignInCard = ({ setState }: SignInCardProps) => {
+  const { signIn } = useAuthActions();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  // It will only a github or google
+  const handleProviderSignIn = (value: "github" | "google") => {
+    signIn(value);
+  };
 
   return (
     <Card className="w-full h-full p-8 ">
@@ -58,6 +67,7 @@ const SignInCard = ({ setState }: SignInCardProps) => {
             disabled={false}
             onClick={() => {}}
             size="lg"
+            variant="outline"
             className="w-full relative "
           >
             <FcGoogle className="size-5 absolute top-2.5 left-2.5" />
@@ -65,8 +75,9 @@ const SignInCard = ({ setState }: SignInCardProps) => {
           </Button>
           <Button
             disabled={false}
-            onClick={() => {}}
+            onClick={() => handleProviderSignIn("github")}
             size="lg"
+            variant="outline"
             className="w-full relative"
           >
             <FaGithub className="size-5 absolute top-2.5 left-2.5" />
