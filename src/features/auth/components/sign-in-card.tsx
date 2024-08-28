@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { SignInFlow } from "../types";
 import { useState } from "react";
+import { TriangleAlert } from "lucide-react";
 
 interface SignInCardProps {
   setState: (state: SignInFlow) => void;
@@ -22,12 +23,27 @@ interface SignInCardProps {
 const SignInCard = ({ setState }: SignInCardProps) => {
   const { signIn } = useAuthActions();
   const [padding, setPadding] = useState(false);
+  const [error, setError] = useState("");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const onPasswordSignIn = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    setPadding(true);
+
+    signIn("password", { email, password, flow: "signIn" })
+      .catch(() => {
+        setError("Inviled Email and Password");
+      })
+      .finally(() => {
+        setPadding(false);
+      });
+  };
+
   // It will only a github or google
-  const handleProviderSignIn = (value: "github" | "google") => {
+  const onProviderSignIn = (value: "github" | "google") => {
     setPadding(true);
     signIn(value).finally(() => {
       setPadding(false);
@@ -42,8 +58,14 @@ const SignInCard = ({ setState }: SignInCardProps) => {
           Use your email or another service to continue
         </CardDescription>
       </CardHeader>
+      {!!error && (
+        <div className="bg-destructive/15 p-3 rounded-md flex items-center gap-x-2 text-sm text-destructive md-6">
+          <TriangleAlert className="size-4" />
+          <p>{error}</p>
+        </div>
+      )}
       <CardContent className="space-y-5 px-0 pb-0 ">
-        <form className="space-y-2.5">
+        <form onSubmit={onPasswordSignIn} className="space-y-2.5">
           <Input
             disabled={padding}
             value={email}
@@ -69,7 +91,7 @@ const SignInCard = ({ setState }: SignInCardProps) => {
         <div className="flex flex-col gap-y-2.5">
           <Button
             disabled={padding}
-            onClick={() => handleProviderSignIn("google")}
+            onClick={() => onProviderSignIn("google")}
             size="lg"
             variant="outline"
             className="w-full relative "
@@ -79,7 +101,7 @@ const SignInCard = ({ setState }: SignInCardProps) => {
           </Button>
           <Button
             disabled={padding}
-            onClick={() => handleProviderSignIn("github")}
+            onClick={() => onProviderSignIn("github")}
             size="lg"
             variant="outline"
             className="w-full relative"

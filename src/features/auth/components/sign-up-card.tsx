@@ -12,15 +12,46 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { SignInFlow } from "../types";
 import { useState } from "react";
+import { TriangleAlert } from "lucide-react";
+import { useAuthActions } from "@convex-dev/auth/react";
 
 interface SignUpCardProps {
   setState: (state: SignInFlow) => void;
 }
 
 const SignUpCard = ({ setState }: SignUpCardProps) => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [padding, setPadding] = useState(false);
+  const [error, setError] = useState("");
+  const { signIn } = useAuthActions();
+
+  const onPassowrdSignUp = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (password !== confirmPassword) {
+      setError("Password do not match!");
+      return;
+    }
+    setPadding(true);
+    signIn("password", { name, email, password, flow: "signUp" })
+      .catch(() => {
+        setError("Something went wrong");
+      })
+      .finally(() => {
+        setPadding(false);
+      });
+  };
+
+  // It will only a github or google
+  const onProviderSignUp = (value: "github" | "google") => {
+    setPadding(true);
+    signIn(value).finally(() => {
+      setPadding(false);
+    });
+  };
 
   return (
     <Card className="w-full h-full p-8 ">
@@ -30,42 +61,56 @@ const SignUpCard = ({ setState }: SignUpCardProps) => {
           Use your email or another service to continue
         </CardDescription>
       </CardHeader>
+      {!!error && (
+        <div className="bg-destructive/15 p-3 rounded-md flex items-center gap-x-2 text-sm text-destructive md-6">
+          <TriangleAlert className="size-4" />
+          <p>{error}</p>
+        </div>
+      )}
       <CardContent className="space-y-5 px-0 pb-0 ">
-        <form className="space-y-2.5">
+        <form onSubmit={onPassowrdSignUp} className="space-y-2.5">
           <Input
-            disabled={false}
+            disabled={padding}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Full Name"
+            required
+            type="text"
+          />
+          <Input
+            disabled={padding}
             value={email}
-             onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
             required
             type="email"
           />
           <Input
-            disabled={false}
+            disabled={padding}
             value={password}
-             onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
             required
             type="password"
           />
           <Input
-            disabled={false}
+            disabled={padding}
             value={confirmPassword}
-             onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="Confirm password"
             required
             type="password"
           />
 
-          <Button type="submit" className="w-full" size="lg" disabled={false}>
+          <Button type="submit" className="w-full" size="lg" disabled={padding}>
             Continue
           </Button>
         </form>
         <Separator />
         <div className="flex flex-col gap-y-2.5">
           <Button
-            disabled={false}
-            onClick={() => {}}
+            disabled={padding}
+            onClick={() => onProviderSignUp("google")}
             size="lg"
             className="w-full relative"
           >
@@ -73,8 +118,8 @@ const SignUpCard = ({ setState }: SignUpCardProps) => {
             Continue with Google
           </Button>
           <Button
-            disabled={false}
-            onClick={() => {}}
+            disabled={padding}
+            onClick={() => onProviderSignUp("github")}
             size="lg"
             className="w-full relative"
           >
