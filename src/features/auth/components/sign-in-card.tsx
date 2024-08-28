@@ -21,13 +21,17 @@ interface SignInCardProps {
 
 const SignInCard = ({ setState }: SignInCardProps) => {
   const { signIn } = useAuthActions();
+  const [padding, setPadding] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   // It will only a github or google
   const handleProviderSignIn = (value: "github" | "google") => {
-    signIn(value);
+    setPadding(true);
+    signIn(value).finally(() => {
+      setPadding(false);
+    });
   };
 
   return (
@@ -41,7 +45,7 @@ const SignInCard = ({ setState }: SignInCardProps) => {
       <CardContent className="space-y-5 px-0 pb-0 ">
         <form className="space-y-2.5">
           <Input
-            disabled={false}
+            disabled={padding}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -49,7 +53,7 @@ const SignInCard = ({ setState }: SignInCardProps) => {
             type="email"
           />
           <Input
-            disabled={false}
+            disabled={padding}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
@@ -57,15 +61,15 @@ const SignInCard = ({ setState }: SignInCardProps) => {
             type="password"
           />
 
-          <Button type="submit" className="w-full" size="lg" disabled={false}>
+          <Button type="submit" className="w-full" size="lg" disabled={padding}>
             Continue
           </Button>
         </form>
         <Separator />
         <div className="flex flex-col gap-y-2.5">
           <Button
-            disabled={false}
-            onClick={() => {}}
+            disabled={padding}
+            onClick={() => handleProviderSignIn("google")}
             size="lg"
             variant="outline"
             className="w-full relative "
@@ -74,7 +78,7 @@ const SignInCard = ({ setState }: SignInCardProps) => {
             Continue with Google
           </Button>
           <Button
-            disabled={false}
+            disabled={padding}
             onClick={() => handleProviderSignIn("github")}
             size="lg"
             variant="outline"
